@@ -12,9 +12,11 @@ public class BookController : ControllerBase
     private static readonly object LockObject = new();
 
     [HttpGet]
-    public string Get(int id)
+    public ActionResult<string> Get(int id)
     {
-        return BookIdName[id];
+        if (BookIdName.TryGetValue(id, out var name))
+            return name;
+        return NotFound();
     }
     
     [HttpGet("AllBooks")]
@@ -35,16 +37,20 @@ public class BookController : ControllerBase
     }
 
     [HttpPost("Update")]
-    public int Update(int id, string name)
+    public ActionResult<int> Update(int id, string name)
     {
+        if (!BookIdName.ContainsKey(id))
+            return NotFound();
         BookIdName[id] = name;
         return id;
     }
     
     [HttpDelete]
-    public string Delete(int id)
+    public ActionResult<string> Delete(int id)
     {
+        if (!BookIdName.ContainsKey(id))
+            return NotFound();
         BookIdName.Remove(id, out var name);
-        return name;
+        return name!;
     }
 }
